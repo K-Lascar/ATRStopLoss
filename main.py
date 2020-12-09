@@ -1,22 +1,18 @@
-import concurrent.futures
+# import concurrent.futures
 from pprint import pprint
-import os.path
+# import os.path
 import numpy
 import talib
-# from alpha_vantage.timeseries import TimeSeries
-# from alpha_vantage.foreignexchange import ForeignExchange
-# from alpha_vantage.cryptocurrencies import CryptoCurrencies <- NOT ENOUGH DATA
 from click._compat import raw_input
 from datetime import datetime, timedelta
 from json import dump, loads
-import requests
+# import requests
 from colorama import Fore
-from xml.etree import ElementTree
 from itertools import permutations
 from distutils.util import strtobool
 import forex
 import stock
-
+import crypto
 # Useful Command for env python3 -m pip install colorama
 
 def list_of_fx_symbols():
@@ -75,79 +71,6 @@ def read_from_file(from_symbol: str, to_symbol, path: str):
     price_data = loads(input_stream.read())
     input_stream.close()
     return price_data
-
-# Has great pricing but all in EURO.
-# Referenced from: https://github.com/exchangeratesapi/exchangeratesapi/blob/master/exchangerates/app.py
-# def retrieve_fx_dataset(from_symbol: str, to_symbol: str):
-#     if (from_symbol, to_symbol) in list_of_fx_symbols():
-#         HISTORIC_RATES_URL = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml"
-#         response = requests.get(url=HISTORIC_RATES_URL)
-#         envelope = ElementTree.fromstring(response.content)
-#         namespaces = {
-#             "gesmes": "http://www.gesmes.org/xml/2002-08-01",
-#             "eurofxref": "http://www.ecb.int/vocabulary/2002-08-01/eurofxref",
-#         }
-#         enveloped_data = envelope.findall("./eurofxref:Cube/eurofxref:Cube[@time]", namespaces)
-#         for cube in enveloped_data:
-#             time = datetime.strptime(cube.attrib["time"], "%Y-%m-%d").timestamp()
-#             cube_rate = {
-#                 "time": int(time),
-#                 "rates": {c.attrib["currency"]: (c.attrib["rate"]) for c in list(cube)}
-#             }
-#             print(cube_rate)
-
-# ALPHA VANTAGE - HAS LESS CRYPTO DATA!
-# def get_crypto_data(symbol: str, market: str):
-#     # future_day = timedelta(days=1) + datetime.now()
-#     alpha_vantage_obj = CryptoCurrencies(key=get_api_alpha_vantage())
-#     try:
-#         weekly_data, meta_data = alpha_vantage_obj.get_digital_currency_weekly(symbol=symbol, market=market)
-#     except ValueError:
-#         print("Invalid Value Provided")
-#         exit(0)
-#     else:
-#         print(weekly_data)
-#         print(datetime.now() - timedelta(weeks=22))
-#         # print(talib.AVGPRICE())
-#         data_set = [value for key, value in weekly_data.items()]
-#         high_values = list(map(lambda x: x["2b. high (USD)"], data_set))
-#         high_values.reverse()
-#         high = numpy.array(high_values, dtype=float)
-#         print(high)
-#         print(talib.EMA(high))
-#         atr_collection = calculate_atr(data_set, "2b. high (USD)", "3b. low (USD)", "4b. close (USD)")
-#         return atr_collection
-
-def get_crypto_data(base_symbol: str, market_symbol: str, limit=1, all_data='true'):
-    """Retrieves Crypto Data for a given base_symbol/market_symbol i.e. BTC/USD"""
-    new_path = os.getcwd() + "/price_collection_data/crypto/"
-    future_day = timedelta(days=1) + datetime.now()
-    if not os.path.isfile(f"{new_path}price-data({base_symbol}-{market_symbol})\
-        .json") or datetime.fromtimestamp(os.path.getctime(f"{new_path}\
-        price-data({base_symbol}-{market_symbol}).json")) > future_day:
-
-        """URL Retrieving Price Information"""
-        api = get_api_crypto_watch()
-        base_url = f"https://min-api.cryptocompare.com/data/v2/histoday?fsym={base_symbol}&tsym={market_symbol}&limit={limit}&allData={all_data}&api_key={api}"
-        response = requests.get(base_url)
-        if response.json()["Response"] == "Success":
-
-            # 7 step indicates weekly data collected.
-            weekly_data = response.json()["Data"]["Data"][::7]
-            weekly_data.reverse()
-            executor_thread = \
-                concurrent.futures.ThreadPoolExecutor(max_workers=1)
-            executor_thread.submit(write_to_file, weekly_data, base_symbol,
-            market_symbol, new_path)
-            atr_collection = calculate_atr(weekly_data, "high", "low", "close")
-
-            return tuple([atr_collection, weekly_data[-1]["close"]])
-        else:
-            print(response.json()["Message"])
-            exit(0)
-    weekly_data = read_from_file(base_symbol, market_symbol, new_path)
-    return tuple([calculate_atr(weekly_data, "high", "low", "close"),
-    weekly_data[0]["close"]])
 
 # This function will print the pnl if the user specifies it.
 def print_pnl(check_profitable, profit_or_loss) -> None:
@@ -218,7 +141,7 @@ def main() -> None:
             if type_of_conversion.upper() == "C":
                 first_pair = raw_input("Enter First Pair: ").upper()
                 sec_pair = raw_input("Enter Second Pair: ").upper()
-                atr_data, recent_price = get_crypto_data(first_pair, sec_pair)
+                atr_data, recent_price = crypto.get_crypto_data(first_pair, sec_pair)
                 print_result(entry, atr_data, recent_price)
             elif type_of_conversion.upper() == "S":
                 ticker = raw_input("Enter Ticker: ")

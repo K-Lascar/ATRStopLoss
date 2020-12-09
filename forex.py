@@ -1,10 +1,10 @@
 import concurrent.futures
 from datetime import timedelta, datetime
 from alpha_vantage.foreignexchange import ForeignExchange
+# from xml.etree import ElementTree
 import os.path
 from colorama import Fore
 import main
-
 class AlphaForeignExchange:
     def __init__(self, from_symbol, to_symbol):
         self.from_symbol = from_symbol
@@ -47,9 +47,8 @@ def get_fx_data(from_symbol: str, to_symbol: str):
     future_day = timedelta(days=1) + datetime.now()
     new_path = os.getcwd() + "/price_collection_data/forex/"
     if not os.path.isfile(f"{new_path}price-data({from_symbol}-{to_symbol}).json") or \
-            datetime.fromtimestamp(os.path.getctime(f"{new_path}\
-            price-data({from_symbol}-{to_symbol}).json")) > \
-            future_day:
+            datetime.fromtimestamp(os.path.getctime(f"{new_path}price-data({from_symbol}-{to_symbol}).json"))\
+            > future_day:
 
         if (from_symbol, to_symbol) in main.list_of_fx_symbols():
             fx_obj = AlphaForeignExchange(from_symbol, to_symbol)
@@ -66,3 +65,23 @@ def get_fx_data(from_symbol: str, to_symbol: str):
     current_daily_set = main.read_from_file(from_symbol, to_symbol, new_path)
     return tuple([main.calculate_atr(current_daily_set, "2. high", "3. low",
         "4. close"), float(current_daily_set[-1]["4. close"])])
+
+# Has great pricing but all in EURO.
+# Referenced from: https://github.com/exchangeratesapi/exchangeratesapi/blob/master/exchangerates/app.py
+# def retrieve_fx_dataset(from_symbol: str, to_symbol: str):
+#     if (from_symbol, to_symbol) in list_of_fx_symbols():
+#         HISTORIC_RATES_URL = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml"
+#         response = requests.get(url=HISTORIC_RATES_URL)
+#         envelope = ElementTree.fromstring(response.content)
+#         namespaces = {
+#             "gesmes": "http://www.gesmes.org/xml/2002-08-01",
+#             "eurofxref": "http://www.ecb.int/vocabulary/2002-08-01/eurofxref",
+#         }
+#         enveloped_data = envelope.findall("./eurofxref:Cube/eurofxref:Cube[@time]", namespaces)
+#         for cube in enveloped_data:
+#             time = datetime.strptime(cube.attrib["time"], "%Y-%m-%d").timestamp()
+#             cube_rate = {
+#                 "time": int(time),
+#                 "rates": {c.attrib["currency"]: (c.attrib["rate"]) for c in list(cube)}
+#             }
+#             print(cube_rate)
