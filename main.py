@@ -1,12 +1,9 @@
-# import concurrent.futures
 from pprint import pprint
-# import os.path
 import numpy
 import talib
 from click._compat import raw_input
 from datetime import datetime, timedelta
 from json import dump, loads
-# import requests
 from colorama import Fore
 from itertools import permutations
 from distutils.util import strtobool
