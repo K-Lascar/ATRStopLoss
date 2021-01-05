@@ -8,10 +8,11 @@ import os.path
 def get_crypto_data(base_symbol: str, market_symbol: str, limit=1, all_data='true'):
     """Retrieves Crypto Data for a given base_symbol/market_symbol i.e. BTC/USD"""
     new_path = os.getcwd() + "/price_collection_data/crypto/"
-    future_day = timedelta(days=1) + datetime.now()
-    if not os.path.isfile(f"{new_path}price-data({base_symbol}-{market_symbol}).json") or \
-        datetime.fromtimestamp(os.path.getctime(f"{new_path}price-data({base_symbol}-{market_symbol}).json")) \
-            > future_day:
+    day_ahead = datetime.now() - timedelta(days=1)
+    existing_file_path = f"{new_path}price-data({base_symbol}-{market_symbol}).json"
+
+    if not os.path.isfile(existing_file_path) or \
+        datetime.fromtimestamp(os.path.getctime(existing_file_path)) <= day_ahead:
 
         """URL Retrieving Price Information"""
         api = main.get_api_crypto_watch()
