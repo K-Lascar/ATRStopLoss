@@ -38,11 +38,12 @@ class AlphaStockTimeSeries:
         self.ticker = ticker
 
 def get_stock_data(ticker: str):
-    future_day = timedelta(days=1) + datetime.now()
     new_path = os.getcwd() + "/price_collection_data/stock/"
-    if not os.path.isfile(f"{new_path}price-data({ticker}).json") or \
-            datetime.fromtimestamp(os.path.getctime(f"{new_path}\
-            price-data({ticker}).json")) > future_day:
+    existing_file_path = f"{new_path}price-data({ticker}).json"
+    day_ahead = datetime.now() - timedelta(days=1)
+
+    if not os.path.isfile(existing_file_path) or \
+            datetime.fromtimestamp(os.path.getctime(existing_file_path)) <= day_ahead:
         stock_obj = AlphaStockTimeSeries(ticker)
         data_set = stock_obj.get_data_set()
         executor_thread = concurrent.futures.ThreadPoolExecutor(max_workers=1)
