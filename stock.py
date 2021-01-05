@@ -40,7 +40,7 @@ class AlphaStockTimeSeries:
 def get_stock_data(ticker: str):
     new_path = os.getcwd() + "/price_collection_data/stock/"
     existing_file_path = f"{new_path}price-data({ticker}).json"
-    day_ahead = datetime.now() - timedelta(days=1)
+    day_ahead = datetime.now() - timedelta(days=3)
 
     if not os.path.isfile(existing_file_path) or \
             datetime.fromtimestamp(os.path.getctime(existing_file_path)) <= day_ahead:

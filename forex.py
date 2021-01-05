@@ -44,7 +44,7 @@ class AlphaForeignExchange:
 
 # Write to a file
 def get_fx_data(from_symbol: str, to_symbol: str):
-    future_day = timedelta(days=1) + datetime.now()
+    future_day = timedelta(days=3) + datetime.now()
     new_path = os.getcwd() + "/price_collection_data/forex/"
     existing_file_path = f"{new_path}price-data({from_symbol}-{to_symbol}).json"
     day_ahead = datetime.now() - timedelta(days=1)

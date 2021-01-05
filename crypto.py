@@ -8,7 +8,7 @@ import os.path
 def get_crypto_data(base_symbol: str, market_symbol: str, limit=1, all_data='true'):
     """Retrieves Crypto Data for a given base_symbol/market_symbol i.e. BTC/USD"""
     new_path = os.getcwd() + "/price_collection_data/crypto/"
-    day_ahead = datetime.now() - timedelta(days=1)
+    day_ahead = datetime.now() - timedelta(days=3)
     existing_file_path = f"{new_path}price-data({base_symbol}-{market_symbol}).json"
 
     if not os.path.isfile(existing_file_path) or \
