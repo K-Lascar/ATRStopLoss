@@ -70,14 +70,15 @@ def read_from_file(from_symbol: str, to_symbol, path: str):
     return price_data
 
 # This function will print the pnl if the user specifies it.
-def print_pnl(check_profitable, profit_or_loss) -> None:
+def print_pnl(check_profitable, profit_or_loss, entry_price) -> None:
 
     # If user has said a true value we will return PNL.
-    if strtobool(check_profitable): # Change to bool type
+    if strtobool(check_profitable):  # Change to bool type
+        return_on_investment = 100 * profit_or_loss / entry_price
         if profit_or_loss > 0:
-            print(Fore.GREEN + f"{profit_or_loss}" + Fore.RESET)
+            print(Fore.GREEN + f"You have gained {profit_or_loss}, with a ROI of {return_on_investment}%" + Fore.RESET)
         else:
-            print(Fore.RED + f"{profit_or_loss}" + Fore.RESET)
+            print(Fore.RED + f"You have lost {profit_or_loss}, with an ROI of {return_on_investment}%" + Fore.RESET)
 
 def print_result(entry_price, atr_data, recent_price) -> None:
     """Prints the result to the user"""
@@ -91,12 +92,12 @@ def print_result(entry_price, atr_data, recent_price) -> None:
         stop_loss = entry_price + atr_data[-1] * multi_factor
         print(f"STOP LOSS: {stop_loss}\n")
         profit_or_loss = entry_price - recent_price
-        print_pnl(check_profitable, profit_or_loss)
+        print_pnl(check_profitable, profit_or_loss, entry_price)
     elif atr_pos == "L":
         stop_loss = entry_price - atr_data[-1] * multi_factor
         print(f"STOP LOSS: {stop_loss}\n")
         profit_or_loss = recent_price - entry_price
-        print_pnl(check_profitable, profit_or_loss)
+        print_pnl(check_profitable, profit_or_loss, entry_price)
 
 def retrieve_entry_position() -> float:
     """This function retrieves the entry position from user"""
