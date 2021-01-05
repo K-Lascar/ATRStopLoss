@@ -44,11 +44,13 @@ class AlphaForeignExchange:
 
 # Write to a file
 def get_fx_data(from_symbol: str, to_symbol: str):
-    future_day = timedelta(days=1) + datetime.now()
+    future_day = timedelta(days=3) + datetime.now()
     new_path = os.getcwd() + "/price_collection_data/forex/"
-    if not os.path.isfile(f"{new_path}price-data({from_symbol}-{to_symbol}).json") or \
-            datetime.fromtimestamp(os.path.getctime(f"{new_path}price-data({from_symbol}-{to_symbol}).json"))\
-            > future_day:
+    existing_file_path = f"{new_path}price-data({from_symbol}-{to_symbol}).json"
+    day_ahead = datetime.now() - timedelta(days=1)
+
+    if not os.path.isfile(existing_file_path) or \
+            datetime.fromtimestamp(os.path.getctime(existing_file_path)) <= day_ahead:
 
         if (from_symbol, to_symbol) in main.list_of_fx_symbols():
             fx_obj = AlphaForeignExchange(from_symbol, to_symbol)
